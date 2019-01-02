@@ -1,0 +1,3 @@
+babylon的gltf导出工具默认会添加环境光照
+导出的gltf通过WindowsMRAssetConverter合并导致错误
+目前可利用obj2gltf导出

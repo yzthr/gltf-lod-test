@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+
+        <title>Babylon.js sample code - Import and Fastest Build</title>
+
+        <!-- Babylon.js -->
+        <script src="https://preview.babylonjs.com/babylon.js"></script>
+        <script src="https://preview.babylonjs.com/loaders/babylonjs.loaders.js"></script>
+        <script src="https://preview.babylonjs.com/gui/babylon.gui.min.js"></script>
+        <script src="https://preview.babylonjs.com/inspector/babylon.inspector.bundle.js"></script> <!--add inspector-->
+
+        <style>
+            html, body {
+                overflow: hidden;
+                width: 100%;
+                height: 100%;
+                margin: 0;
+                padding: 0;
+            }
+
+            #renderCanvas {
+                width: 100%;
+                height: 100%;
+                touch-action: none;
+            }
+        </style>
+    </head>
+<body>
+    <canvas id="renderCanvas"></canvas>
+    <script>
+    	
+    	
+    	
+        var canvas = document.getElementById("renderCanvas");
+
+		//Highlight a Mesh
+		var engine = new BABYLON.Engine(canvas, true, { stencil: true });
+
+		engine.displayLoadingUI();
+		engine.loadingScreen.loadingUIText = "Loading....";engine.loadingScreen.loadingUIBackgroundColor = "LightSteelBlue"; //or any other CSS conform color
+		
+        function delayCreateScene() {
+            var scene = new BABYLON.Scene(engine);
+            scene.debugLayer.show();
+        	var camera = new BABYLON.FreeCamera("cameraName", new BABYLON.Vector3(10, 10, 10), scene);
+
+
+
+
+            BABYLON.SceneLoader.AppendAsync("", "AF_CW.babylon", scene,()=>function(scene){
+                scene.createDefaultCameraOrLight(true, true, true);
+                scene.createDefaultEnvironment();
+                // var pointToIntersect = camera.position;
+                // console.log(pointToIntersect);
+
+            }).then(() => scene.registerBeforeRender(function () {
+                var pointToIntersect = camera.position;
+                console.log(pointToIntersect);
+                var CW = scene.getMeshByName("AF_CW");
+                console.log("CW:"+CW);
+                if (CW.intersectsPoint(pointToIntersect)) {
+                    // load inner scene
+                    // console.log("true");
+                    BABYLON.SceneLoader.Append("", "4F.babylon", scene, function (scenes) {
+                        console.log(scenes.meshes.length);
+                        var meshLength = scenes.meshes.length;
+
+                        for (var i = 0; i < meshLength; i++) {
+                            if (scenes.meshes[i].hasOwnProperty('instances')) {//判断是mesh还是transformnode
+                                var Box = BABYLON.Mesh.CreateBox("box" + i, 0.001, scene);
+                                // console.log(scenes.meshes[i].name);
+                                scenes.meshes[i].addLODLevel(5000, null);
+                            }
+                        }
+                    });
+                }
+            }));
+
+
+
+            // setTimeout(function() {
+            //     CW = scene.getMeshByName("AF_CW");
+            //     console.log("CW:"+CW);
+            // }, 10000);
+
+
+            return scene;
+        }
+        
+        
+        var scene = delayCreateScene();
+
+        engine.runRenderLoop(function () {
+            if (scene) {
+                scene.render();
+            }
+        });
+
+        // Resize
+        window.addEventListener("resize", function () {
+            engine.resize();
+        });
+    </script>
+</body>
+</html>

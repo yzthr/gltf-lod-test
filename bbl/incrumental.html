@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+
+    <title>Babylon.js sample code - Import and Fastest Build</title>
+
+    <!-- Babylon.js -->
+    <script src="https://preview.babylonjs.com/babylon.js"></script>
+    <script src="https://preview.babylonjs.com/loaders/babylonjs.loaders.js"></script>
+    <script src="https://preview.babylonjs.com/gui/babylon.gui.min.js"></script>
+    <script src="https://preview.babylonjs.com/inspector/babylon.inspector.bundle.js"></script> <!--add inspector-->
+
+    <style>
+        html, body {
+            overflow: hidden;
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+
+        #renderCanvas {
+            width: 100%;
+            height: 100%;
+            touch-action: none;
+        }
+    </style>
+</head>
+<body>
+<canvas id="renderCanvas"></canvas>
+<script>
+
+
+
+    var canvas = document.getElementById("renderCanvas");
+
+    //Highlight a Mesh
+    var engine = new BABYLON.Engine(canvas, true, { stencil: true });
+
+    engine.displayLoadingUI();
+    engine.loadingScreen.loadingUIText = "Loading....";engine.loadingScreen.loadingUIBackgroundColor = "LightSteelBlue"; //or any other CSS conform color
+
+    var delayCreateScene = function () {
+        // Playground needs to return at least an empty scene and default camera
+        var scene = new BABYLON.Scene(engine);
+        scene.createDefaultCameraOrLight(true, true, true);
+        scene.createDefaultEnvironment();
+
+        // Async call
+        BABYLON.SceneLoader.Append("",
+            "scene (6).incremental.babylon", scene, function () {
+
+                scene.activeCamera.attachControl(canvas, true);
+            });
+
+        return scene;
+    };
+
+
+    var scene = delayCreateScene();
+
+    engine.runRenderLoop(function () {
+        if (scene) {
+            scene.render();
+        }
+    });
+
+    // Resize
+    window.addEventListener("resize", function () {
+        engine.resize();
+    });
+</script>
+</body>
+</html>
